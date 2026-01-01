@@ -1,0 +1,109 @@
+/* Root container */
+.fileviewer-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    padding: 12px;
+    background-color: #fafafa;
+    font-family: Segoe UI, Arial, sans-serif;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Upload button */
+.fileviewer-button {
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    align-self: flex-start;
+}
+
+.fileviewer-button:hover {
+    background-color: #106ebe;
+}
+
+/* Selected files label */
+.fileviewer-label {
+    text-align: left;
+    font-size: 13px;
+    color: #333;
+}
+
+/* File list container */
+.fileviewer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+/* One file row */
+.fileviewer-item {
+    display: grid;
+    grid-template-columns: 3fr 2fr 1fr 2fr 1fr 1fr;
+    /* name | type | size | date */
+    gap: 8px;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Each cell */
+.childview-item {
+    font-size: 12px;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Header row (optional) */
+.fileviewer-header {
+    display: grid;
+    grid-template-columns: 3fr 2fr 1fr 2fr 1fr 1fr;
+    font-weight: 600;
+    font-size: 12px;
+    color: #555;
+    padding: 4px 8px;
+}
+
+/* Hide native file input */
+.fileviewer-input {
+    display: none;
+}
+
+/*Preview Button */
+.preview {
+    background-color: #7c00d4ec;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    align-self: flex-start;
+
+}
+
+/*Delete Button */
+.delete {
+
+    background-color: #f65809ec;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    align-self: flex-start;
+}
