@@ -1,6 +1,6 @@
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
 import { filetypecheck, filesize, totalsize, numberoffilesupload } from "./components/filechecks"
-
+import { newtabrender } from './components/Newtabfile'
 interface fileinformationstore {
     name: string;
     type: string;
@@ -23,6 +23,7 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
     private preview: HTMLButtonElement;
     private delete: HTMLButtonElement;
     private viewer: HTMLIFrameElement;
+    private errormessagespan: HTMLSpanElement
 
     // Bound values
     private allowMultipleFiles = false;
@@ -35,6 +36,13 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
     private allfile: File[] = []
     private allfileinformation: fileinformationstore[]
     private processstring: string;
+    private errormessage = ''
+    private typecheck = false
+    private singlefilecheck = "false";
+    private Allfilecheck = "false";
+    private numberoffilescheck = false;
+    private previewmode: string;
+    private filetype: string;
 
     /* ================= INIT ================= */
     public init(
@@ -55,6 +63,9 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
         this.fileinput.type = "file";
         this.fileinput.className = "fileviewer-input";
         this.viewer = document.createElement('iframe')
+        this.errormessagespan = document.createElement('span')
+
+
         //this.viewer.style.display = 'block'
 
         this.fileinput.onchange = async (e: Event) => {
@@ -65,14 +76,30 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
             //console.log(userfiles, files.length, this.maxFilesAllowed)
 
 
-            const typecheck = filetypecheck(userfiles, this.fileTypes)
-            const singlefilecheck = filesize(sizes)
-            const Allfilecheck = totalsize(sizes)
-            const numberoffilescheck = numberoffilesupload(files, parseInt(this.maxFilesAllowed))
+            this.typecheck = filetypecheck(userfiles, this.fileTypes)
+            this.singlefilecheck = filesize(sizes)
+            this.Allfilecheck = totalsize(sizes)
+            this.numberoffilescheck = numberoffilesupload(files, parseInt(this.maxFilesAllowed))
             //console.log(typecheck, singlefilecheck, Allfilecheck, numberoffilescheck)
-            if (typecheck || singlefilecheck !== 'false' || Allfilecheck !== 'false' || numberoffilescheck) {
-                alert('File Type Mismatch.Pleas upload a valid Files')
-            } else {
+            if (this.typecheck || this.singlefilecheck !== 'false' || this.Allfilecheck !== 'false' || this.numberoffilescheck) {
+                if (this.typecheck) {
+                    this.errormessage = `You have selected ${this.fileTypes}. Please upload only these file types for the process.`
+                    console.log(this.errormessage)
+                } else {
+                    if (this.singlefilecheck !== 'false' || this.Allfilecheck !== 'false') {
+                        this.errormessage = 'The uploaded individual files exceed the size limit. Please upload compressed files.'
+                    } else {
+                        if (this.numberoffilescheck) {
+                            this.errormessage = `You have selected ${this.maxFilesAllowed} files. Please upload only the required number of files.`
+                        }
+                        this.errormessage = 'Something went wrong , Please try again'
+                    }
+                }
+                this.notifyOutputChanged()
+                return;
+                // alert('File Type Mismatch. Please upload valid files')
+            }
+            else {
                 this.renderfiles(files)
                 this.allfileinformation = []; // reset
                 files.forEach((file) => {
@@ -114,11 +141,14 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
 
 
 
+
         // Append to DOM
         this.container.appendChild(this.fileinput);
         this.container.appendChild(this.button);
+        this.container.appendChild(this.errormessagespan)
         this.container.appendChild(this.filenames);
-        //this.container.appendChild(this.viewer)
+        // Append child inside parent
+
     }
 
     /* ================= UPDATE VIEW ================= */
@@ -134,23 +164,27 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
             ? `Number of Selected Files: ${this.numberoffiles}`
             : "Number of Selected Files: None";
 
+
+        //console.log(this.singlefilecheck, this.Allfilecheck, this.numberoffiles, this.typecheck)
+
+        if (this.typecheck || this.singlefilecheck !== 'false' || this.Allfilecheck !== 'false' || this.numberoffilescheck) {
+            this.errormessagespan.innerText = `Error : ${this.errormessage}`
+            this.errormessagespan.style.color = 'red'
+            // alert('File Type Mismatch. Please upload valid files')
+        } else {
+            this.errormessagespan.innerText = ''
+
+        }
+        this.previewmode = context.parameters.PreviewType?.raw ?? 'inline'
+
         if (this.filenamesrender && !this.container.contains(this.filenamesrender)) {
             this.container.appendChild(this.filenamesrender);
         }
-        if (this.bas64.length > 0) {
-            console.log("file added", this.bas64)
-            this.viewer.style.display = 'block'
-            this.viewer.src = this.currentbase64
-            this.viewer.style.width = "100%";
-            this.viewer.style.height = "500px";
-            this.viewer.style.border = "none";
-            this.viewer.style.borderRadius = "8px";
-            this.viewer.style.boxShadow = "0 2px 10px rgba(0,0,0,0.15)";
-            this.viewer.style.backgroundColor = "#fff";
-            this.container.appendChild(this.viewer)
-        } else {
-            this.viewer.style.display = 'none'
+        if (this.bas64.length > 0 && this.previewmode !== 'new tab') {
+            this.renderiframecomponent()
         }
+
+
     }
 
     /* ================= OUTPUTS ================= */
@@ -158,7 +192,8 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
         return {
             FileNames: this.allFileNames,
             // selectedfilebase64: this.currentbase64
-            Fileinformation: JSON.stringify(this.allfileinformation)
+            Fileinformation: JSON.stringify(this.allfileinformation),
+            ErrorMessage: this.errormessage
         };
     }
 
@@ -174,6 +209,7 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
             const Reader = new FileReader()
             Reader.onload = () => {
                 this.currentbase64 = Reader.result as string
+                this.filetype = inputfile.type
                 this.bas64.push(Reader.result as string)
             }
             Reader.onerror = () => {
@@ -229,10 +265,9 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
             this.preview.textContent = ' Preview File'
             this.preview.className = 'preview'
             this.preview.onclick = () => {
-                this.base64(file);
-                console.log(this.currentbase64)
-                console.log(this.bas64);
-                this.notifyOutputChanged()
+
+                this.filepreview(file)
+
             }
             this.delete = document.createElement('button');
             this.delete.textContent = 'Delete File'
@@ -263,5 +298,43 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
             this.filenamesrender.appendChild(row);
         });
         this.notifyOutputChanged();
+    }
+    private filepreview(file: File) {
+        console.log(this.currentbase64)
+        console.log(this.bas64);
+
+        this.base64(file);
+        if (this.previewmode === 'new tab') {
+            const blob: Blob = newtabrender(this.currentbase64, 1024 * 1024, this.filetype)
+            //const newblob = blob;
+            const obj = URL.createObjectURL(blob)
+            console.log(obj)
+            window.open(obj, "_blank")
+            URL.revokeObjectURL(obj);
+            setTimeout(() => {
+                URL.revokeObjectURL(obj)
+            }, 5000)
+        } else {
+            this.renderiframecomponent()
+        }
+
+    }
+
+    private renderiframecomponent() {
+        if (this.bas64.length > 0 && this.previewmode !== 'new tab') {
+            //console.log("file added", this.bas64)
+            this.viewer.style.display = 'block'
+            this.viewer.src = this.currentbase64
+            this.viewer.style.width = "100%";
+            this.viewer.style.height = "500px";
+            this.viewer.style.border = "none";
+            this.viewer.style.borderRadius = "8px";
+            this.viewer.style.boxShadow = "0 2px 10px rgba(0,0,0,0.15)";
+            this.viewer.style.backgroundColor = "#fff";
+            this.container.appendChild(this.viewer)
+        } else {
+            this.viewer.style.display = 'none'
+        }
+        //this.notifyOutputChanged()
     }
 }

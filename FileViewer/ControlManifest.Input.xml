@@ -40,8 +40,13 @@
 
     </property>
     <property name="Fileinformation" display-name-key='Fileinformation' description-key="All Fileinformation" of-type='SingleLine.Text' usage="output" required="true" />
+    <property name="PreviewType" display-name-key="PreviewType" description-key="PreviewType" of-type="Enum" usage="input" required="false">
+      <value name="modal" display-name-key="2 Files">modal</value>
+      <value name="new tab" display-name-key="3 Files">new tab</value>
 
 
+    </property>
+    <property name="ErrorMessage" display-name-key='Error Message' description-key="Error Message" of-type='SingleLine.Text' usage="output" required="true" />
 
 
     <!--

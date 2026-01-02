@@ -107,3 +107,48 @@
     font-size: 14px;
     align-self: flex-start;
 }
+
+/* Modal background / overlay */
+.modal-overlay {
+    height: 500px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Nice dark glassy background */
+    background: linear-gradient(rgba(0, 0, 0, 0.65),
+            rgba(0, 0, 0, 0.65));
+
+    backdrop-filter: blur(4px);
+    border-radius: 8px;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #ffffff, #f5f7fa);
+    height: 450px;
+    width: 90%;
+
+
+    border-radius: 10px;
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.25),
+        0 2px 6px rgba(0, 0, 0, 0.1);
+
+    padding: 20px;
+    position: relative;
+
+    animation: modalFadeIn 0.25s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
