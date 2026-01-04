@@ -1,6 +1,8 @@
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
 import { filetypecheck, filesize, totalsize, numberoffilesupload } from "./components/filechecks"
 import { newtabrender } from './components/Newtabfile'
+import { fileReordermove, fileReorderdown } from './components/filereordering'
+
 interface fileinformationstore {
     name: string;
     type: string;
@@ -192,7 +194,7 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
         return {
             FileNames: this.allFileNames,
             // selectedfilebase64: this.currentbase64
-            Fileinformation: JSON.stringify(this.allfileinformation),
+            //Fileinformation: JSON.stringify(this.allfileinformation),
             ErrorMessage: this.errormessage
         };
     }
@@ -254,14 +256,34 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
         this.filenamesrender = document.createElement("div");
         this.filenamesrender.className = "fileviewer-list";
 
-        this.allfile.forEach(file => {
+        this.allfile.forEach((file, index) => {
             const row = document.createElement("div");
+
             row.className = "fileviewer-item";
 
             const name = document.createElement("div");
             const type = document.createElement("div");
             const size = document.createElement("div");
             this.preview = document.createElement('button');
+            const uparrowSpan = document.createElement('span')
+            const downarrowSpan = document.createElement('span')
+            uparrowSpan.innerText = '⬆️'
+            uparrowSpan.style.width = '50px'
+            uparrowSpan.className = 'childview-item'
+            uparrowSpan.onclick = () => {
+                //fileReordermove(files, 'forward', index, index - 1)
+                this.moveup(files, index)
+            }
+            downarrowSpan.className = 'childview-item'
+            uparrowSpan.style.cursor = 'pointer'
+            downarrowSpan.style.cursor = 'pointer'
+            //uparrowSpan.style.backgroundColor = 'silver'
+            downarrowSpan.innerText = '⬇️'
+            downarrowSpan.style.width = '50px'
+            downarrowSpan.onclick = () => {
+                this.movedown(files, index)
+            }
+            //downarrowSpan.style.backgroundColor = 'orangered'
             this.preview.textContent = ' Preview File'
             this.preview.className = 'preview'
             this.preview.onclick = () => {
@@ -278,6 +300,7 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
             }
             const lastModified = document.createElement("div");
 
+
             name.textContent = file.name;
             type.textContent = file.type || "unknown";
             size.textContent = `${(file.size / 1024).toFixed(1)} KB`;
@@ -293,7 +316,19 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
             row.appendChild(size);
             row.appendChild(lastModified);
             row.appendChild(this.preview)
-            row.appendChild(this.delete)
+            row.appendChild(this.delete);
+            if (index === 0) {
+                //     if (files.length > 1) {
+                //     row.appendChild(uparrowSpan);
+                //     row.appendChild(downarrowSpan)
+                // }
+                row.appendChild(downarrowSpan)
+
+            } else {
+                row.appendChild(uparrowSpan);
+                row.appendChild(downarrowSpan)
+            }
+
 
             this.filenamesrender.appendChild(row);
         });
@@ -336,5 +371,15 @@ export class FileViewer implements ComponentFramework.StandardControl<IInputs, I
             this.viewer.style.display = 'none'
         }
         //this.notifyOutputChanged()
+    }
+    private moveup(file: File[] | FileList, index: number) {
+        const move = fileReordermove(Array.from(file), 'moveup', index, index - 1)
+        this.renderfiles(move)
+    }
+
+    private movedown(file: File[] | FileList, index: number) {
+        const down = fileReorderdown(file, index)
+        console.log(down)
+        this.renderfiles(down)
     }
 }

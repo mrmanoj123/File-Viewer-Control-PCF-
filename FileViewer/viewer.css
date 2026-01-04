@@ -43,11 +43,27 @@
     width: 100%;
 }
 
-/* One file row */
+/* One file row – UPDATED */
 .fileviewer-item {
     display: grid;
-    grid-template-columns: 3fr 2fr 1fr 2fr 1fr 1fr;
-    /* name | type | size | date */
+    grid-template-columns:
+        3fr
+        /* name */
+        2fr
+        /* type */
+        1fr
+        /* size */
+        2fr
+        /* date */
+        auto
+        /* preview */
+        auto
+        /* delete */
+        32px
+        /* up arrow */
+        32px;
+    /* down arrow */
+
     gap: 8px;
     align-items: center;
     padding: 8px;
@@ -58,7 +74,7 @@
     box-sizing: border-box;
 }
 
-/* Each cell */
+/* Each text cell */
 .childview-item {
     font-size: 12px;
     color: #333;
@@ -67,45 +83,63 @@
     white-space: nowrap;
 }
 
-/* Header row (optional) */
-.fileviewer-header {
-    display: grid;
-    grid-template-columns: 3fr 2fr 1fr 2fr 1fr 1fr;
-    font-weight: 600;
+/* Preview button */
+.preview {
+    background-color: #7c00d4ec;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
     font-size: 12px;
-    color: #555;
-    padding: 4px 8px;
+    white-space: nowrap;
+}
+
+.preview:hover {
+    background-color: #6a00b8;
+}
+
+/* Delete button */
+.delete {
+    background-color: #f65809ec;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.delete:hover {
+    background-color: #dd4f08;
+}
+
+/* Arrow spans */
+.fileviewer-item span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+}
+
+.fileviewer-item span:hover {
+    background-color: #f3f2f1;
+}
+
+/* Row hover */
+.fileviewer-item:hover {
+    background-color: #faf9f8;
 }
 
 /* Hide native file input */
 .fileviewer-input {
     display: none;
-}
-
-/*Preview Button */
-.preview {
-    background-color: #7c00d4ec;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    align-self: flex-start;
-
-}
-
-/*Delete Button */
-.delete {
-
-    background-color: #f65809ec;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    align-self: flex-start;
 }
 
 /* Modal background / overlay */
@@ -115,11 +149,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
-    /* Nice dark glassy background */
     background: linear-gradient(rgba(0, 0, 0, 0.65),
             rgba(0, 0, 0, 0.65));
-
     backdrop-filter: blur(4px);
     border-radius: 8px;
 }
@@ -128,16 +159,12 @@
     background: linear-gradient(135deg, #ffffff, #f5f7fa);
     height: 450px;
     width: 90%;
-
-
     border-radius: 10px;
     box-shadow:
         0 10px 30px rgba(0, 0, 0, 0.25),
         0 2px 6px rgba(0, 0, 0, 0.1);
-
     padding: 20px;
     position: relative;
-
     animation: modalFadeIn 0.25s ease-out;
 }
 
